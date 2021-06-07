@@ -26,21 +26,20 @@ def get_series(file, site, sat, field):
 
 def get_map(data, time, value):
     timestamp = time.timestamp()
-    return np.array(data[timestamp])
+    return np.array(data[int(int(timestamp) % 86400 / 30)])
 
 def save_map_data(file, field):
-    results = {}
+    results = [[] for i in range(int(86400 / 30))]
     sites = get_sites(file)
     for site in sites:
+        print(str(sites.index(site)/len(sites)*100) + '%', end='\r')
         lat = np.degrees(file[site].attrs['lat'])
         lon = np.degrees(file[site].attrs['lon'])
         sats = get_sats(file, site)
         for sat in sats:
             timestamps, data = get_series(file, site, sat, field)
             for i in range(len(timestamps)):
-                if timestamps[i] not in results.keys():
-                    results[timestamps[i]] = []
-                results[timestamps[i]].append([data[i], lon, lat])
+                results[int(int(timestamps[i]) % 86400 / 30)].append((data[i], lon, lat))
     return results
 
 path_to_file = '2020-05-20.h5'
